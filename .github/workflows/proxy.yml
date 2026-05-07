@@ -14,18 +14,18 @@ jobs:
     steps:
       - name: نصب GOST
         run: |
+          sudo apt update
+          sudo apt install -y wget
+          cd /tmp
           wget https://github.com/ginuerzh/gost/releases/download/v2.11.5/gost-linux-amd64-2.11.5.gz
           gunzip gost-linux-amd64-2.11.5.gz
           chmod +x gost-linux-amd64-2.11.5
           sudo mv gost-linux-amd64-2.11.5 /usr/local/bin/gost
+          gost -V
       
       - name: اجرای پروکسی SOCKS5
         run: |
           gost -L=socks5://:1080 &
           echo "پروکسی روی پورت 1080 در حال اجراست"
-          echo "برای متوقف کردن، این workflow رو Cancel کن"
+          echo "برای مشاهده آدرس، به تب Ports مراجعه کنید"
           sleep ${{ github.event.inputs.duration }}m
-      
-      - name: نگه داشتن راینر
-        run: |
-          echo "پروکسی تمام شد"
