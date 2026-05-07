@@ -12,20 +12,29 @@ jobs:
   proxy:
     runs-on: ubuntu-latest
     steps:
-      - name: نصب GOST
+      - name: نصب GOST و Cloudflared
         run: |
           sudo apt update
-          sudo apt install -y wget
+          sudo apt install -y wget curl
+          
+          # نصب GOST
           cd /tmp
           wget https://github.com/ginuerzh/gost/releases/download/v2.11.5/gost-linux-amd64-2.11.5.gz
           gunzip gost-linux-amd64-2.11.5.gz
           chmod +x gost-linux-amd64-2.11.5
           sudo mv gost-linux-amd64-2.11.5 /usr/local/bin/gost
-          gost -V
+          
+          # نصب Cloudflared
+          wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x cloudflared-linux-amd64
+          sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
       
-      - name: اجرای پروکسی SOCKS5
+      - name: اجرای پروکسی و تونل
         run: |
+          # اجرای GOST در پس‌زمینه
           gost -L=socks5://:1080 &
-          echo "پروکسی روی پورت 1080 در حال اجراست"
-          echo "برای مشاهده آدرس، به تب Ports مراجعه کنید"
-          sleep ${{ github.event.inputs.duration }}m
+          sleep 3
+          
+          # ایجاد تونل Cloudflared
+          echo "=== آدرس پروکسی شما ==="
+          cloudflared tunnel --url localhost:1080 --protocol http
